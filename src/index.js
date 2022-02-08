@@ -1,42 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Board } from './components/boadr';
+import { GameInfo } from './components/gameInfo';
+import { TICTACTOEKEYS } from './constants';
+import { calculateWinner } from './helpers';
 import './index.css';
-
-function Square({ onClick, value }) {
-  return (
-    <button className="square" onClick={onClick}>
-      {value}
-    </button>
-  );
-}
-
-function Board({ onClick, squares }) {
-  function renderSquare(i) {
-    function handlerClick() {
-      onClick(i);
-    }
-    return <Square value={squares[i]} onClick={handlerClick} />;
-  }
-  return (
-    <div>
-      <div className="board-row">
-        {renderSquare(0)}
-        {renderSquare(1)}
-        {renderSquare(2)}
-      </div>
-      <div className="board-row">
-        {renderSquare(3)}
-        {renderSquare(4)}
-        {renderSquare(5)}
-      </div>
-      <div className="board-row">
-        {renderSquare(6)}
-        {renderSquare(7)}
-        {renderSquare(8)}
-      </div>
-    </div>
-  );
-}
 
 class Game extends React.Component {
   constructor(props) {
@@ -58,6 +26,24 @@ class Game extends React.Component {
     };
     this.modeHandlerClick = this.changeMode.bind(this);
     this.boardHandleClick = this.handleClick.bind(this);
+    this.resetGameHandleClick = this.resetGame.bind(this);
+    this.jumpToBackHandleClick = this.jumpTo.bind(this, 'decrement');
+    this.jumpToNextHandleClick = this.jumpTo.bind(this);
+  }
+
+  componentDidMount() {
+    this.setState(
+      JSON.parse(localStorage.getItem('state')) || {
+        history: [
+          {
+            squares: Array(9).fill(null),
+          },
+        ],
+        xIsNext: true,
+        stepNumber: 0,
+        isComputerMode: false,
+      }
+    );
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -67,6 +53,9 @@ class Game extends React.Component {
       this.state.xIsNext
     ) {
       this.computerMove();
+    }
+    if (prevState !== this.state) {
+      localStorage.setItem('state', JSON.stringify(this.state));
     }
   }
 
@@ -78,7 +67,7 @@ class Game extends React.Component {
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    squares[i] = this.state.xIsNext ? TICTACTOEKEYS.x : TICTACTOEKEYS.o;
     this.setState({
       history: history.concat([
         {
@@ -117,8 +106,11 @@ class Game extends React.Component {
   }
 
   computerMove() {
+    const board = document.querySelector('.game-board');
+    board.classList.toggle('blocked');
     setTimeout(() => {
       const next = this.getRandom();
+      board.classList.toggle('blocked');
       this.handleClick(next);
     }, 500);
   }
@@ -134,7 +126,7 @@ class Game extends React.Component {
   jumpTo(decrement) {
     let currentMove = this.state.stepNumber;
     this.setState({
-      stepNumber: decrement === 'decrement'? --currentMove: ++currentMove,
+      stepNumber: decrement === 'decrement' ? --currentMove : ++currentMove,
       xIsNext: currentMove % 2 === 0,
     });
   }
@@ -172,84 +164,32 @@ class Game extends React.Component {
       status = `Выйграл ${winner}`;
       this.updateScore(winner);
     } else {
-      status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
+      status = `Next player: ${
+        this.state.xIsNext ? TICTACTOEKEYS.x : TICTACTOEKEYS.o
+      }`;
     }
     return (
       <div className="game">
+        <div className="status">{status}</div>
         <div className="game-board">
           <Board squares={current.squares} onClick={this.boardHandleClick} />
         </div>
-        <div className="game-info">
-          <div>{status}</div>
-          <ol>
-            <button
-              onClick={() => {
-                this.resetGame();
-              }}
-            >
-              'Reset'
-            </button>
-            <button
-              disabled={this.state.stepNumber ? false : true}
-              onClick={() => {
-                this.jumpTo('decrement');
-              }}
-            >
-              'Back'
-            </button>
-            <button
-              disabled={
-                this.state.stepNumber + 1 < history.length ? false : true
-              }
-              onClick={() => {
-                this.jumpTo();
-              }}
-            >
-              'Next'
-            </button>
-          </ol>
-        </div>
-        <div className="mode">
-          <button onClick={this.modeHandlerClick}>
-            Mode: {this.state.isComputerMode ? 'Computer' : 'Players'}
-          </button>
-        </div>
-        <div className="score">
-          <p>
-            {(this.state.isComputerMode ? `Computer X` : `Player X`) +
-              `: ${this.score.x}`}
-          </p>
-          <p>tie: {this.score.tie}</p>
-          <p>{`Player O: ${this.score.o}`}</p>
-        </div>
+        <GameInfo
+          score={this.score}
+          isComputerMode={this.state.isComputerMode}
+          status={status}
+          resetGameHandleClick={this.resetGameHandleClick}
+          stepNumber={this.state.stepNumber}
+          jumpToBackHandleClick={this.jumpToBackHandleClick}
+          history={this.state.history}
+          jumpToNextHandleClick={this.jumpToNextHandleClick}
+          modeHandlerClick={this.modeHandlerClick}
+        />
       </div>
     );
   }
 }
 
-function calculateWinner(squares) {
-  const countSteps = squares.filter((item) => item);
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  if (countSteps.length === 9) {
-    return 'tie';
-  }
-  return null;
-}
 // ========================================
 
 ReactDOM.render(<Game />, document.getElementById('root'));

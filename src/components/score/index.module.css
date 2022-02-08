@@ -1,0 +1,9 @@
+.score {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    font-size: 18px;
+}
+.update {
+    color: green;
+}
