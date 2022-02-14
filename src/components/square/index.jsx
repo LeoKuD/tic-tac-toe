@@ -1,6 +1,6 @@
-export function Square({ onClick, value }) {
+export function Square({ onClick, value, index }) {
     return (
-      <button className="square" onClick={onClick}>
+      <button data-index={index} className="square" onClick={onClick}>
         {value}
       </button>
     );

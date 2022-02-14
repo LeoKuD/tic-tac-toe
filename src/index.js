@@ -13,6 +13,7 @@ class Game extends React.Component {
       x: 0,
       o: 0,
       tie: 0,
+      roundCompleted: false,
     };
     this.state = {
       history: [
@@ -20,18 +21,28 @@ class Game extends React.Component {
           squares: Array(9).fill(null),
         },
       ],
-      xIsNext: true,
+      nextPlayer: false,
       stepNumber: 0,
       isComputerMode: false,
+      isStart: false,
+      playerOne: true,
     };
     this.modeHandlerClick = this.changeMode.bind(this);
     this.boardHandleClick = this.handleClick.bind(this);
     this.resetGameHandleClick = this.resetGame.bind(this);
     this.jumpToBackHandleClick = this.jumpTo.bind(this, 'decrement');
     this.jumpToNextHandleClick = this.jumpTo.bind(this);
+    this.setPlayerMarkXHandleClick = this.changePlayerMark.bind(this, true);
+    this.setPlayerMarkOHandleClick = this.changePlayerMark.bind(this, false);
+    this.getStartHandleClick = this.getStart.bind(this);
   }
 
   componentDidMount() {
+    this.score = JSON.parse(localStorage.getItem('score')) || {
+      x: 0,
+      o: 0,
+      tie: 0,
+    };
     this.setState(
       JSON.parse(localStorage.getItem('state')) || {
         history: [
@@ -39,21 +50,24 @@ class Game extends React.Component {
             squares: Array(9).fill(null),
           },
         ],
-        xIsNext: true,
+        nextPlayer: false,
         stepNumber: 0,
         isComputerMode: false,
+        isStart: false,
+        playerOne: true,
       }
     );
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (
-      prevState !== this.state &&
+      this.state.isStart &&
       this.state.isComputerMode &&
-      this.state.xIsNext
+      this.state.nextPlayer
     ) {
       this.computerMove();
     }
+
     if (prevState !== this.state) {
       localStorage.setItem('state', JSON.stringify(this.state));
     }
@@ -67,26 +81,40 @@ class Game extends React.Component {
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
-    squares[i] = this.state.xIsNext ? TICTACTOEKEYS.x : TICTACTOEKEYS.o;
-    this.setState({
-      history: history.concat([
-        {
-          squares: squares,
-        },
-      ]),
-      stepNumber: history.length,
-      xIsNext: !this.state.xIsNext,
-    });
+
+    if (this.state.isStart) {
+      squares[i] = this.state.nextPlayer ? TICTACTOEKEYS.x : TICTACTOEKEYS.o;
+      this.setState({
+        history: history.concat([
+          {
+            squares: squares,
+          },
+        ]),
+        stepNumber: history.length,
+        nextPlayer: !this.state.nextPlayer,
+      });
+    }
   }
 
-  changeMode() {
+  getStart() {
+    this.setState({ isStart: true });
+  }
+
+  changePlayerMark(mark) {
     this.setState((state) => {
-      return { isComputerMode: !state.isComputerMode };
+      return { nextPlayer: mark, playerOne: mark };
+    });
+  }
+  changeMode() {
+    this.setState({
+      isComputerMode: !this.state.isComputerMode,
+      isStart: false,
     });
     this.score = {
       x: 0,
       o: 0,
       tie: 0,
+      roundCompleted: false,
     };
     localStorage.removeItem('score');
     this.resetGame();
@@ -105,11 +133,91 @@ class Game extends React.Component {
     return randomSquares;
   }
 
+  random2() {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    const history = this.state.history;
+    const current = history[this.state.stepNumber].squares;
+    let availableСombinationsX = [];
+    let availableСombinationsO = [];
+    let computerWinnerСombinations = [];
+    let playerWinnerСombinations = [];
+    let index = null;
+
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (
+        (current[a] === 'O' && current[b] === 'O' && !current[c]) ||
+        (current[a] === 'O' && current[c] === 'O' && !current[b]) ||
+        (current[b] === 'O' && current[c] === 'O' && !current[a])
+      ) {
+        playerWinnerСombinations.push([a, b, c]);
+      }
+      if (
+        (current[a] === 'X' && current[b] === 'X' && !current[c]) ||
+        (current[a] === 'X' && current[c] === 'X' && !current[b]) ||
+        (current[b] === 'X' && current[c] === 'X' && !current[a])
+      ) {
+        computerWinnerСombinations.push([a, b, c]);
+      }
+      if (
+        (current[a] === 'X' && !current[b] && !current[c]) ||
+        (current[b] === 'X' && !current[a] && !current[c]) ||
+        (current[c] === 'X' && !current[a] && !current[b])
+      ) {
+        availableСombinationsX.push([a, b, c]);
+      }
+      if (
+        (current[a] === 'O' && !current[b] && !current[c]) ||
+        (current[b] === 'O' && !current[a] && !current[c]) ||
+        (current[c] === 'O' && !current[a] && !current[b])
+      ) {
+        availableСombinationsO.push([a, b, c]);
+      }
+    }
+
+    if (computerWinnerСombinations.length) {
+      let random = computerWinnerСombinations[
+        Math.floor(Math.random() * computerWinnerСombinations.length)
+      ].filter((item) => !current[item]);
+      random = random[Math.floor(Math.random() * random.length)];
+      index = random;
+    } else if (playerWinnerСombinations.length) {
+      let random = playerWinnerСombinations[
+        Math.floor(Math.random() * playerWinnerСombinations.length)
+      ].filter((item) => !current[item]);
+      random = random[Math.floor(Math.random() * random.length)];
+      index = random;
+    } else if (
+      this.state.stepNumber > 1 &&
+      (availableСombinationsX.length || availableСombinationsO.length)
+    ) {
+      let randomX = availableСombinationsX[
+        Math.floor(Math.random() * availableСombinationsX.length)
+      ].filter((item) => !current[item]);
+      randomX = randomX[Math.floor(Math.random() * randomX.length)];
+      index = randomX;
+    } 
+    else {
+      index = this.getRandom()
+    }
+
+    return index
+  }
+
   computerMove() {
     const board = document.querySelector('.game-board');
     board.classList.toggle('blocked');
     setTimeout(() => {
-      const next = this.getRandom();
+      const next = this.random2();
       board.classList.toggle('blocked');
       this.handleClick(next);
     }, 500);
@@ -118,20 +226,22 @@ class Game extends React.Component {
   resetGame() {
     this.setState({
       history: [{ squares: Array(9).fill(null) }],
-      xIsNext: true,
       stepNumber: 0,
+      nextPlayer: this.state.playerOne,
     });
+    this.score.roundCompleted = false;
   }
 
   jumpTo(decrement) {
     let currentMove = this.state.stepNumber;
     this.setState({
       stepNumber: decrement === 'decrement' ? --currentMove : ++currentMove,
-      xIsNext: currentMove % 2 === 0,
+      nextPlayer: currentMove % 2 === 0,
     });
   }
 
   updateScore(winner) {
+    this.score.roundCompleted = true;
     switch (winner) {
       case 'X':
         this.score.x++;
@@ -150,22 +260,17 @@ class Game extends React.Component {
   }
 
   render() {
-    this.score = JSON.parse(localStorage.getItem('score')) || {
-      x: 0,
-      o: 0,
-      tie: 0,
-    };
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
     let status;
 
-    if (winner) {
+    if (winner && !this.score.roundCompleted) {
       status = `Выйграл ${winner}`;
       this.updateScore(winner);
     } else {
       status = `Next player: ${
-        this.state.xIsNext ? TICTACTOEKEYS.x : TICTACTOEKEYS.o
+        this.state.nextPlayer ? TICTACTOEKEYS.x : TICTACTOEKEYS.o
       }`;
     }
     return (
@@ -184,6 +289,11 @@ class Game extends React.Component {
           history={this.state.history}
           jumpToNextHandleClick={this.jumpToNextHandleClick}
           modeHandlerClick={this.modeHandlerClick}
+          playerOne={this.state.playerOne}
+          setPlayerMarkXHandleClick={this.setPlayerMarkXHandleClick}
+          setPlayerMarkOHandleClick={this.setPlayerMarkOHandleClick}
+          getStartHandleClick={this.getStartHandleClick}
+          isStart={this.state.isStart}
         />
       </div>
     );

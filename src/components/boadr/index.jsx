@@ -5,7 +5,7 @@ export function Board({ onClick, squares }) {
       function handlerClick() {
         onClick(i);
       }
-      return <Square value={squares[i]} onClick={handlerClick} />;
+      return <Square index={i} value={squares[i]} onClick={handlerClick} />;
     }
     return (
       <div>
