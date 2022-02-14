@@ -2,6 +2,9 @@
     transition: 0.5s;
     height: auto;
     opacity: 1;
+    height: 100vh;
+    background: black;
+    width: 150px;
 }
 
 .settings_hide {
@@ -10,8 +13,8 @@
     margin: 0;
     opacity: 0;
 }
-
-.settings__elements {
-    display: flex;
-    justify-content: space-evenly;
+.settingsMenu {
+    position: absolute;
+    left: 16px;
+    top: 16px;
 }

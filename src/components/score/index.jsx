@@ -1,5 +1,6 @@
 import React from 'react';
 import { PLAYERSKEYS } from '../../constants';
+import { highlightScore } from '../../helpers';
 import style from './index.module.css';
 
 class Score extends React.Component {
@@ -13,24 +14,15 @@ class Score extends React.Component {
   updateScore() {
     if (this.scoreX < this.props.score.x) {
       const x = document.getElementById('x');
-      x.classList.toggle(style.update);
-      setTimeout(() => {
-        x.classList.toggle(style.update);
-      }, 500);
+      highlightScore(x)
     }
     if (this.scoreO < this.props.score.o) {
       const o = document.getElementById('o');
-      o.classList.toggle(style.update);
-      setTimeout(() => {
-        o.classList.toggle(style.update);
-      }, 500);
+      highlightScore(o)
     }
     if (this.scoreTie < this.props.score.tie) {
       const tie = document.getElementById('tie');
-      tie.classList.toggle(style.update);
-      setTimeout(() => {
-        tie.classList.toggle(style.update);
-      }, 500);
+      highlightScore(tie)
     }
 
     this.scoreX = this.props.score.x;

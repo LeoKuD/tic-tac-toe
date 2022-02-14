@@ -17,6 +17,8 @@ export function GameInfo({
   setPlayerMarkOHandleClick,
   isStart,
   getStartHandleClick,
+  changeLavelHandleClick,
+  isLevelHard
 }) {
   return (
     <div className={style.gameInfo}>
@@ -38,6 +40,8 @@ export function GameInfo({
         isStart={isStart}
         getStartHandleClick={getStartHandleClick}
         isComputerMode={isComputerMode}
+        changeLavelHandleClick={changeLavelHandleClick}
+        isLevelHard={isLevelHard}
       />
     </div>
   );
