@@ -1,5 +1,31 @@
-import { LINES } from './constants';
+import { LINES, LOCALSTORAGE_KEYS } from './constants';
 import style from './components/score/index.module.css';
+
+export function initialState() {
+  return {
+    history: [
+      {
+        squares: Array(9).fill(null),
+      },
+    ],
+    nextPlayer: true,
+    stepNumber: 0,
+    isComputerMode: false,
+    isNavigationMode: false,
+    isStart: false,
+    playerOne: true,
+    isLevelHard: true,
+  };
+}
+
+export function initialStaticVariables() {
+  return {
+    x: 0,
+    o: 0,
+    tie: 0,
+    roundCompleted: false,
+  };
+}
 
 export function calculateWinner(squares) {
   const countSteps = squares.filter((item) => item);
@@ -104,7 +130,7 @@ function getRandomIndex(combinations, currentGameState) {
 
 export function getIndexEasyLevel(currentGameState) {
   let emptySquares = [];
-  
+
   currentGameState.forEach((element, index) => {
     if (!element) {
       emptySquares.push(index);

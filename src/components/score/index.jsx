@@ -35,13 +35,13 @@ class Score extends React.Component {
   render() {
     return (
       <div className={style.score}>
-        <p ref={this.refX} id="x">
+        <p ref={this.refX}>
           {(this.props.isComputerMode
             ? PLAYER_KEYS.computerX
             : PLAYER_KEYS.playerX) + `: ${this.props.score.x}`}
         </p>
-        <p ref={this.refTie} id="tie">tie: {this.props.score.tie}</p>
-        <p ref={this.refO} id="o">{`${PLAYER_KEYS.playerO}: ${this.props.score.o}`}</p>
+        <p ref={this.refTie}>tie: {this.props.score.tie}</p>
+        <p ref={this.refO}>{`${PLAYER_KEYS.playerO}: ${this.props.score.o}`}</p>
       </div>
     );
   }

@@ -2,11 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Board } from './components/boadr';
 import { GameInfo } from './components/gameInfo';
-import { GAME_KEYS, LOCALSTORAGE_KEYS, NAVIGATION_KEYS, SELECTORS_KEYS } from './constants';
+import {
+  GAME_KEYS,
+  LOCALSTORAGE_KEYS,
+  NAVIGATION_KEYS,
+  SELECTORS_KEYS,
+} from './constants';
 import {
   calculateWinner,
   getIndexEasyLevel,
   getIndexHardLevel,
+  initialState,
+  initialStaticVariables,
 } from './helpers';
 import './index.css';
 
@@ -14,7 +21,8 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.refBoard = React.createRef();
-    this.state = this.initialState();
+    this.score = initialStaticVariables();
+    this.state = initialState();
     this.modeHandlerClick = this.changeMode.bind(this);
     this.boardHandleClick = this.handleClick.bind(this);
     this.resetGameHandleClick = this.resetGame.bind(this);
@@ -28,7 +36,14 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
-    
+    const state = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.state));
+    const score = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.score));
+    if (state) {
+      this.setState(state);
+    }
+    if (score) {
+      this.score = score;
+    }
   }
 
   componentDidUpdate() {
@@ -43,32 +58,6 @@ class Game extends React.Component {
     localStorage.setItem('state', JSON.stringify(this.state));
   }
 
-  initialState() {
-    this.score = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.score)) || {
-      x: 0,
-      o: 0,
-      tie: 0,
-      roundCompleted: false,
-    };
-
-    return (
-      JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.state)) || {
-        history: [
-          {
-            squares: Array(9).fill(null),
-          },
-        ],
-        nextPlayer: true,
-        stepNumber: 0,
-        isComputerMode: false,
-        isNavigationMode: false,
-        isStart: false,
-        playerOne: true,
-        isLevelHard: true,
-      }
-    );
-  }
-
   handleClick(i) {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
@@ -77,8 +66,9 @@ class Game extends React.Component {
     if (calculateWinner(squares) || squares[i]) {
       return;
     } else {
-      this.setState((state) => {
-          squares[i] = this.state.nextPlayer ? GAME_KEYS.x : GAME_KEYS.o;
+      this.setState((prevState) => {
+        squares[i] = prevState.nextPlayer ? GAME_KEYS.x : GAME_KEYS.o;
+        if (prevState.isStart) {
           return {
             history: history.concat([
               {
@@ -86,24 +76,33 @@ class Game extends React.Component {
               },
             ]),
             stepNumber: history.length,
-            nextPlayer: !state.nextPlayer,
+            nextPlayer: !prevState.nextPlayer,
             isNavigationMode: false,
             isStart: true,
           };
+        } else {
+          return { isStart: true };
+        }
       });
     }
   }
 
   getStart() {
-    this.setState((state) => {
-      return { isStart: !state.isStart };
-    });
+    this.setState((prevState) =>
+      !prevState.isStart
+        ? { isStart: !prevState.isStart }
+        : {
+            ...initialState(),
+            nextPlayer: prevState.playerOne,
+            isComputerMode: prevState.isComputerMode,
+            isLevelHard: prevState.isLevelHard,
+            isStart: !prevState.isStart,
+          }
+    );
   }
 
-  changeLavel(isLavelHard) {
-    this.setState((state) => {
-      return { isLevelHard: isLavelHard };
-    });
+  changeLavel(isLevelHard) {
+    this.setState({ isLevelHard });
   }
 
   changePlayerMark(mark) {
@@ -117,10 +116,7 @@ class Game extends React.Component {
       };
     });
     this.score = {
-      x: 0,
-      o: 0,
-      tie: 0,
-      roundCompleted: false,
+      ...initialStaticVariables(),
     };
     localStorage.removeItem(LOCALSTORAGE_KEYS.score);
     this.resetGame();
@@ -152,26 +148,32 @@ class Game extends React.Component {
       const next = this.state.isLevelHard
         ? this.getRandomHard()
         : this.getRandomEasy();
-        nodeBoard.classList.toggle(SELECTORS_KEYS.blocked);
+      nodeBoard.classList.toggle(SELECTORS_KEYS.blocked);
       this.handleClick(next);
     }, 500);
   }
 
   resetGame() {
-    this.setState({
-      history: [{ squares: Array(9).fill(null) }],
-      stepNumber: 0,
-      nextPlayer: this.state.playerOne,
-      isNavigationMode: false,
+    this.setState((prevState) => {
+      if (prevState.stepNumber) {
+        return {
+          ...initialState(),
+          nextPlayer: prevState.playerOne,
+          isComputerMode: prevState.isComputerMode,
+          isLevelHard: prevState.isLevelHard,
+          isStart: prevState.isStart,
+        };
+      }
     });
     this.score.roundCompleted = false;
   }
 
   jumpTo(direction) {
     this.setState((state) => {
-      let {stepNumber} = state;
+      let { stepNumber } = state;
       return {
-        stepNumber: direction === NAVIGATION_KEYS.back ? --stepNumber : ++stepNumber,
+        stepNumber:
+          direction === NAVIGATION_KEYS.back ? --stepNumber : ++stepNumber,
         nextPlayer: state.playerOne
           ? stepNumber % 2 === 0
           : !stepNumber % 2 === 0,
@@ -214,7 +216,7 @@ class Game extends React.Component {
       }`;
     }
 
-    return status
+    return status;
   }
 
   render() {
