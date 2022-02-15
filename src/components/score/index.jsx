@@ -1,28 +1,31 @@
 import React from 'react';
-import { PLAYERSKEYS } from '../../constants';
+import { PLAYER_KEYS } from '../../constants';
 import { highlightScore } from '../../helpers';
 import style from './index.module.css';
 
 class Score extends React.Component {
   constructor(props) {
     super(props);
-    this.scoreX = 0;
-    this.scoreO = 0;
-    this.scoreTie = 0;
+    this.scoreX = this.props.score.x;
+    this.scoreO = this.props.score.o;
+    this.scoreTie = this.props.score.tie;
+    this.refX = React.createRef();
+    this.refO = React.createRef();
+    this.refTie = React.createRef();
   }
 
+  componentDidUpdate() {
+    this.updateScore();
+  }
   updateScore() {
     if (this.scoreX < this.props.score.x) {
-      const x = document.getElementById('x');
-      highlightScore(x)
+      highlightScore(this.refX.current);
     }
     if (this.scoreO < this.props.score.o) {
-      const o = document.getElementById('o');
-      highlightScore(o)
+      highlightScore(this.refO.current);
     }
     if (this.scoreTie < this.props.score.tie) {
-      const tie = document.getElementById('tie');
-      highlightScore(tie)
+      highlightScore(this.refTie.current);
     }
 
     this.scoreX = this.props.score.x;
@@ -30,16 +33,15 @@ class Score extends React.Component {
     this.scoreTie = this.props.score.tie;
   }
   render() {
-    this.updateScore();
     return (
       <div className={style.score}>
-        <p id="x">
+        <p ref={this.refX} id="x">
           {(this.props.isComputerMode
-            ? PLAYERSKEYS.computerX
-            : PLAYERSKEYS.playerX) + `: ${this.props.score.x}`}
+            ? PLAYER_KEYS.computerX
+            : PLAYER_KEYS.playerX) + `: ${this.props.score.x}`}
         </p>
-        <p id="tie">tie: {this.props.score.tie}</p>
-        <p id="o">{`${PLAYERSKEYS.playerO}: ${this.props.score.o}`}</p>
+        <p ref={this.refTie} id="tie">tie: {this.props.score.tie}</p>
+        <p ref={this.refO} id="o">{`${PLAYER_KEYS.playerO}: ${this.props.score.o}`}</p>
       </div>
     );
   }

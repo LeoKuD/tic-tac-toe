@@ -1,6 +1,8 @@
-export function Square({ onClick, value, index }) {
+import style from './index.module.css'
+
+export function Square({ onClick, value}) {
     return (
-      <button data-index={index} className="square" onClick={onClick}>
+      <button className={style.square} onClick={onClick}>
         {value}
       </button>
     );

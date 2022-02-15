@@ -1,11 +1,12 @@
 import React from 'react';
+import { PLAYER_KEYS } from '../../constants';
 import style from './index.module.css';
 
 class Settings extends React.Component {
   render() {
     return (
       <div className={style.settingsMenu}>
-        <button className={style.settings__button} type="submit" onClick={this.props.getStartHandleClick}>Settings</button>
+        <button className={style.settings__button} type="submit" onClick={this.props.getStartHandleClick}>{this.props.isStart ? 'Settings' : 'Save'}</button>
         <div
           className={this.props.isStart ? style.settings_hide : style.settings}
         >
@@ -15,7 +16,7 @@ class Settings extends React.Component {
           <div className={style.settings__elements}>
             <div>
               <label htmlFor="x">
-                {this.props.isComputerMode ? `Computer (X)` : `Player (X)`}
+                {this.props.isComputerMode ? PLAYER_KEYS.computerX : PLAYER_KEYS.playerX}
               </label>
               <input
                 defaultChecked={this.props.playerOne}
@@ -50,7 +51,7 @@ class Settings extends React.Component {
                 type="radio"
                 name="level"
                 id="easy"
-                onClick={this.props.changeLavelHandleClick}
+                onClick={this.props.changeLavelEasyHandleClick}
               />
             </div>
 
@@ -62,7 +63,7 @@ class Settings extends React.Component {
                 type="radio"
                 name="level"
                 id="hard"
-                onClick={this.props.changeLavelHandleClick}
+                onClick={this.props.changeLavelHardHandleClick}
               />
             </div>
           </div>

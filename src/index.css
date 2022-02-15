@@ -1,3 +1,8 @@
+:root {
+  --bg-color-primary: #000;
+  --color-primary: #fff;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -8,8 +13,8 @@ body {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  background-color: #000;
-  color: #fff;
+  background-color: var(--bg-color-primary);
+  color: var(--color-primary);
 }
 
 ol,
@@ -25,22 +30,6 @@ ul {
 
 .status {
   margin-bottom: 10px;
-}
-
-.square {
-  background: #000;
-  border: 5px solid #fff;
-  color: #fff;
-  float: left;
-  font-size: 100px;
-  font-weight: bold;
-  line-height: 100px;
-  height: 130px;
-  width: 130px;
-  margin-right: -1px;
-  margin-top: -1px;
-  padding: 0;
-  text-align: center;
 }
 
 .square:focus {

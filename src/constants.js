@@ -1,10 +1,10 @@
-export const TICTACTOEKEYS = {
+export const GAME_KEYS = {
     x: 'X',
     o: 'O',
-    tie: 'tie'
+    tie: 'tie',
 }
 
-export const PLAYERSKEYS = {
+export const PLAYER_KEYS = {
     computerX: 'Computer X',
     playerO: 'Player O',
     playerX: 'Player X',
@@ -28,4 +28,21 @@ export const LINES = [
 
   export const STATUS = {
     nextPlayer: 'Next player:'
+  }
+
+  export const SELECTORS_KEYS = {
+    game: 'game',
+    status: 'status',
+    gameBoard: 'game-board',
+    blocked: 'blocked'
+  }
+
+  export const NAVIGATION_KEYS = {
+    back: 'back',
+    next: 'next',
+  }
+
+  export const LOCALSTORAGE_KEYS = {
+    state: 'state',
+    score: 'score',
   }
