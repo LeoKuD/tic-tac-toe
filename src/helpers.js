@@ -1,4 +1,4 @@
-import { LINES, LOCALSTORAGE_KEYS } from './constants';
+import { LINES } from './constants';
 import style from './components/score/index.module.css';
 
 export function initialState() {
@@ -121,22 +121,17 @@ export function getIndexHardLevel(currentGameState, stepNumber) {
 }
 
 function getRandomIndex(combinations, currentGameState) {
-  let randomLine = combinations[
-    Math.floor(Math.random() * combinations.length)
-  ].filter((item) => !currentGameState[item]);
+  let randomLine = calculateRandomIndex(combinations).filter(
+    (item) => !currentGameState[item]
+  );
 
   return calculateRandomIndex(randomLine);
 }
 
 export function getIndexEasyLevel(currentGameState) {
-  let emptySquares = [];
-
-  currentGameState.forEach((element, index) => {
-    if (!element) {
-      emptySquares.push(index);
-    }
-  });
-
+  let emptySquares = currentGameState
+    .map((item, index) => (item ? null : index))
+    .filter((item) => item !== null);
   return calculateRandomIndex(emptySquares);
 }
 

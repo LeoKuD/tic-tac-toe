@@ -70,6 +70,7 @@ class Game extends React.Component {
         squares[i] = prevState.nextPlayer ? GAME_KEYS.x : GAME_KEYS.o;
         if (prevState.isStart) {
           return {
+            ...prevState,
             history: history.concat([
               {
                 squares: squares,
@@ -81,7 +82,7 @@ class Game extends React.Component {
             isStart: true,
           };
         } else {
-          return { isStart: true };
+          return { ...prevState, isStart: true };
         }
       });
     }
@@ -90,7 +91,7 @@ class Game extends React.Component {
   getStart() {
     this.setState((prevState) =>
       !prevState.isStart
-        ? { isStart: !prevState.isStart }
+        ? { ...prevState, isStart: !prevState.isStart }
         : {
             ...initialState(),
             nextPlayer: prevState.playerOne,
@@ -110,9 +111,10 @@ class Game extends React.Component {
   }
 
   changeMode() {
-    this.setState((state) => {
+    this.setState((prevState) => {
       return {
-        isComputerMode: !state.isComputerMode,
+        ...prevState,
+        isComputerMode: !prevState.isComputerMode,
       };
     });
     this.score = {
@@ -122,59 +124,45 @@ class Game extends React.Component {
     this.resetGame();
   }
 
-  getRandomEasy() {
-    let current = null;
-    this.setState((state) => {
-      current = state.history[state.stepNumber].squares;
-    });
-    return getIndexEasyLevel(current);
-  }
-
-  getRandomHard() {
-    let current = null;
-    let stepNumber = null;
-    this.setState((state) => {
-      stepNumber = state.stepNumber;
-      current = state.history[state.stepNumber].squares;
-    });
-
-    return getIndexHardLevel(current, stepNumber);
-  }
-
   computerMove() {
+    const current = this.state.history[this.state.stepNumber].squares;
     const nodeBoard = this.refBoard.current;
     nodeBoard.classList.toggle(SELECTORS_KEYS.blocked);
     setTimeout(() => {
       const next = this.state.isLevelHard
-        ? this.getRandomHard()
-        : this.getRandomEasy();
+        ? getIndexHardLevel(current, this.state.stepNumber)
+        : getIndexEasyLevel(current);
       nodeBoard.classList.toggle(SELECTORS_KEYS.blocked);
       this.handleClick(next);
     }, 500);
   }
 
   resetGame() {
-    this.setState((prevState) => {
-      if (prevState.stepNumber) {
-        return {
-          ...initialState(),
-          nextPlayer: prevState.playerOne,
-          isComputerMode: prevState.isComputerMode,
-          isLevelHard: prevState.isLevelHard,
-          isStart: prevState.isStart,
-        };
-      }
-    });
+    this.setState((prevState) =>
+      prevState.stepNumber
+        ? {
+            ...initialState(),
+            nextPlayer: prevState.playerOne,
+            isComputerMode: prevState.isComputerMode,
+            isLevelHard: prevState.isLevelHard,
+            isStart: prevState.isStart,
+          }
+        : {
+            ...prevState,
+            isStart: false,
+          }
+    );
     this.score.roundCompleted = false;
   }
 
   jumpTo(direction) {
-    this.setState((state) => {
-      let { stepNumber } = state;
+    this.setState((prevState) => {
+      let { stepNumber } = prevState;
       return {
+        ...prevState,
         stepNumber:
           direction === NAVIGATION_KEYS.back ? --stepNumber : ++stepNumber,
-        nextPlayer: state.playerOne
+        nextPlayer: prevState.playerOne
           ? stepNumber % 2 === 0
           : !stepNumber % 2 === 0,
         isNavigationMode: true,
@@ -220,21 +208,19 @@ class Game extends React.Component {
   }
 
   render() {
-    const history = this.state.history;
-    const current = history[this.state.stepNumber];
-
-    let status = this.updateStatus();
-
     return (
       <div className={SELECTORS_KEYS.game}>
-        <div className={SELECTORS_KEYS.status}>{status}</div>
+        <div className={SELECTORS_KEYS.status}>{this.updateStatus()}</div>
         <div ref={this.refBoard} className={SELECTORS_KEYS.gameBoard}>
-          <Board squares={current.squares} onClick={this.boardHandleClick} />
+          <Board
+            squares={this.state.history[this.state.stepNumber].squares}
+            onClick={this.boardHandleClick}
+          />
         </div>
         <GameInfo
           score={this.score}
           isComputerMode={this.state.isComputerMode}
-          status={status}
+          status={this.updateStatus()}
           resetGameHandleClick={this.resetGameHandleClick}
           stepNumber={this.state.stepNumber}
           jumpToBackHandleClick={this.jumpToBackHandleClick}
