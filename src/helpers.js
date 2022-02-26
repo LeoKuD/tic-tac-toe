@@ -1,4 +1,4 @@
-import { LINES } from './constants';
+import { GAME_KEYS, LINES } from './constants';
 import style from './components/score/index.module.css';
 
 export function initialState() {
@@ -37,7 +37,7 @@ export function calculateWinner(squares) {
     }
   }
   if (countSteps.length === 9) {
-    return 'tie';
+    return GAME_KEYS.tie;
   }
   return null;
 }
@@ -48,59 +48,59 @@ export function getIndexHardLevel(currentGameState, stepNumber) {
   let computerWinnerСombinations = [];
   let playerWinnerСombinations = [];
 
+  function checkPlayerWinnerCombitation(player, [a, b, c]) {
+    if (
+      (currentGameState[a] === player &&
+        currentGameState[b] === player &&
+        !currentGameState[c]) ||
+      (currentGameState[a] === player &&
+        currentGameState[c] === player &&
+        !currentGameState[b]) ||
+      (currentGameState[b] === player &&
+        currentGameState[c] === player &&
+        !currentGameState[a])
+    ) {
+      return [a, b, c];
+    }
+  }
+
+  function checkAvailableСombinations(player, [a, b, c]) {
+    if (
+      (currentGameState[a] === player &&
+        !currentGameState[b] &&
+        !currentGameState[c]) ||
+      (currentGameState[b] === player &&
+        !currentGameState[a] &&
+        !currentGameState[c]) ||
+      (currentGameState[c] === player &&
+        !currentGameState[a] &&
+        !currentGameState[b])
+    ) {
+      return [a, b, c];
+    }
+  }
+
   for (let i = 0; i < LINES.length; i++) {
     const [a, b, c] = LINES[i];
-    if (
-      (currentGameState[a] === 'O' &&
-        currentGameState[b] === 'O' &&
-        !currentGameState[c]) ||
-      (currentGameState[a] === 'O' &&
-        currentGameState[c] === 'O' &&
-        !currentGameState[b]) ||
-      (currentGameState[b] === 'O' &&
-        currentGameState[c] === 'O' &&
-        !currentGameState[a])
-    ) {
-      playerWinnerСombinations.push([a, b, c]);
+    if (checkPlayerWinnerCombitation(GAME_KEYS.o, [a, b, c])) {
+      playerWinnerСombinations.push(
+        checkPlayerWinnerCombitation(GAME_KEYS.o, [a, b, c])
+      );
     }
-    if (
-      (currentGameState[a] === 'X' &&
-        currentGameState[b] === 'X' &&
-        !currentGameState[c]) ||
-      (currentGameState[a] === 'X' &&
-        currentGameState[c] === 'X' &&
-        !currentGameState[b]) ||
-      (currentGameState[b] === 'X' &&
-        currentGameState[c] === 'X' &&
-        !currentGameState[a])
-    ) {
-      computerWinnerСombinations.push([a, b, c]);
+    if (checkPlayerWinnerCombitation(GAME_KEYS.x, [a, b, c])) {
+      computerWinnerСombinations.push(
+        checkPlayerWinnerCombitation(GAME_KEYS.x, [a, b, c])
+      );
     }
-    if (
-      (currentGameState[a] === 'X' &&
-        !currentGameState[b] &&
-        !currentGameState[c]) ||
-      (currentGameState[b] === 'X' &&
-        !currentGameState[a] &&
-        !currentGameState[c]) ||
-      (currentGameState[c] === 'X' &&
-        !currentGameState[a] &&
-        !currentGameState[b])
-    ) {
-      availableСombinationsX.push([a, b, c]);
+    if (checkAvailableСombinations(GAME_KEYS.x, [a, b, c])) {
+      availableСombinationsX.push(
+        checkAvailableСombinations(GAME_KEYS.x, [a, b, c])
+      );
     }
-    if (
-      (currentGameState[a] === 'O' &&
-        !currentGameState[b] &&
-        !currentGameState[c]) ||
-      (currentGameState[b] === 'O' &&
-        !currentGameState[a] &&
-        !currentGameState[c]) ||
-      (currentGameState[c] === 'O' &&
-        !currentGameState[a] &&
-        !currentGameState[b])
-    ) {
-      availableСombinationsO.push([a, b, c]);
+    if (checkAvailableСombinations(GAME_KEYS.o, [a, b, c])) {
+      availableСombinationsO.push(
+        checkAvailableСombinations(GAME_KEYS.o, [a, b, c])
+      );
     }
   }
 

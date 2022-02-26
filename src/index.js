@@ -31,8 +31,8 @@ class Game extends React.Component {
     this.setPlayerMarkXHandleClick = this.changePlayerMark.bind(this, true);
     this.setPlayerMarkOHandleClick = this.changePlayerMark.bind(this, false);
     this.getStartHandleClick = this.getStart.bind(this);
-    this.changeLavelHardHandleClick = this.changeLavel.bind(this, true);
-    this.changeLavelEasyHandleClick = this.changeLavel.bind(this, false);
+    this.changeLevelHardHandleClick = this.changeLevel.bind(this, true);
+    this.changeLevelEasyHandleClick = this.changeLevel.bind(this, false);
   }
 
   componentDidMount() {
@@ -102,7 +102,7 @@ class Game extends React.Component {
     );
   }
 
-  changeLavel(isLevelHard) {
+  changeLevel(isLevelHard) {
     this.setState({ isLevelHard });
   }
 
@@ -171,7 +171,7 @@ class Game extends React.Component {
   }
 
   updateScore(winner) {
-    this.score.roundCompleted = true;
+    this.roundCompleted = true;
     switch (winner) {
       case GAME_KEYS.x:
         this.score.x++;
@@ -190,12 +190,12 @@ class Game extends React.Component {
   }
 
   updateStatus() {
-    const history = this.state.history;
+    const { history } = this.state;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
     let status;
 
-    if (winner && !this.score.roundCompleted) {
+    if (winner && !this.roundCompleted) {
       status = `Winner: ${winner}`;
       this.updateScore(winner);
     } else {
@@ -232,8 +232,8 @@ class Game extends React.Component {
           setPlayerMarkOHandleClick={this.setPlayerMarkOHandleClick}
           getStartHandleClick={this.getStartHandleClick}
           isStart={this.state.isStart}
-          changeLavelHardHandleClick={this.changeLavelHardHandleClick}
-          changeLavelEasyHandleClick={this.changeLavelEasyHandleClick}
+          changeLevelHardHandleClick={this.changeLevelHardHandleClick}
+          changeLevelEasyHandleClick={this.changeLevelEasyHandleClick}
           isLevelHard={this.state.isLevelHard}
         />
       </div>
