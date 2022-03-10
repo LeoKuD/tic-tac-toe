@@ -1,0 +1,20 @@
+.settings{
+    transition: 0.5s;
+    height: auto;
+    opacity: 1;
+    height: 100vh;
+    background: black;
+    width: 150px;
+}
+
+.settings_hide {
+    transition: 0.5s;
+    height: 0;
+    margin: 0;
+    opacity: 0;
+}
+.settingsMenu {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+}

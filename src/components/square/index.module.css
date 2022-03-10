@@ -1,0 +1,13 @@
+.square {
+    border: 5px solid var(--color-primary);
+    float: left;
+    font-size: 100px;
+    font-weight: bold;
+    line-height: 100px;
+    height: 130px;
+    width: 130px;
+    margin-right: -1px;
+    margin-top: -1px;
+    padding: 0;
+    text-align: center;
+  }

@@ -1,0 +1,54 @@
+:root {
+  --bg-color-primary: #000;
+  --color-primary: #fff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font: 14px 'Century Gothic', Futura, sans-serif;
+  margin: 20px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background-color: var(--bg-color-primary);
+  color: var(--color-primary);
+}
+
+ol,
+ul {
+  padding-left: 30px;
+}
+
+.board-row:after {
+  clear: both;
+  content: '';
+  display: table;
+}
+
+.status {
+  margin-bottom: 10px;
+}
+
+.square:focus {
+  outline: none;
+}
+
+.kbd-navigation .square:focus {
+  background: #ddd;
+}
+
+.game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.status {
+  padding: 35px 0 25px 0;
+}
+.blocked {
+  pointer-events: none;
+}
